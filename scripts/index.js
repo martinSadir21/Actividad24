@@ -1,70 +1,73 @@
-// Esta es la base de datos de nuestros usuarios
+// base de datos con los usuarios
 const baseDeDatos = {
   usuarios: [
-    {
-      id: 1,
-      name: "Steve Jobs",
-      email: "steve@jobs.com",
-      password: "Steve123",
-    },
-    {
-      id: 2,
-      name: "Ervin Howell",
-      email: "shanna@melissa.tv",
-      password: "Ervin345",
-    },
-    {
-      id: 3,
-      name: "Clementine Bauch",
-      email: "nathan@yesenia.net",
-      password: "Floppy39876",
-    },
-    {
-      id: 4,
-      name: "Patricia Lebsack",
-      email: "julianne.oconner@kory.org",
-      password: "MysuperPassword345",
-    },
+    { id: 1, name: "Steve Jobs", email: "steve@jobs.com", password: "Steve123" },
+    { id: 2, name: "Ervin Howell", email: "shanna@melissa.tv", password: "Ervin345" },
+    { id: 3, name: "Clementine Bauch", email: "nathan@yesenia.net", password: "Floppy39876" },
+    { id: 4, name: "Patricia Lebsack", email: "julianne.oconner@kory.org", password: "MysuperPassword345" },
   ],
 };
 
-// ACTIVIDAD
+// agarro los elementos del html
+const emailInput = document.querySelector("#email-input");
+const passInput = document.querySelector("#password-input");
+const loginBtn = document.querySelector(".login-btn");
+const loader = document.querySelector("#loader");
+const errorBox = document.querySelector("#error-container");
+const form = document.querySelector("form");
+const main = document.querySelector("main");
 
-// Paso a paso:
+// validar que el email tenga pinta de mail
+function esEmailValido(valor) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+}
 
-// 1) Escuchar el evento necesario para reaccionar cuando la persona
-// haga click en el botón iniciar sesión.
+// simular demora como si fuese el server
+function esperar(ms) {
+  return new Promise((res) => setTimeout(res, ms));
+}
 
-// 2) El proceso de inicio de sesión deberá tener una demora de 3 segundos.
-// Deberás agregar la función correspondiente para simular dicha demora.
+// buscar usuario en la "base de datos"
+function buscarUsuario(email, pass) {
+  return baseDeDatos.usuarios.find(
+    (u) => u.email === email && u.password === pass
+  );
+}
 
-// 3) Durante el tiempo indicado anteriormente, se deberá mostrar el mensaje "Iniciando sesión..."
+// cuando se hace click en el botón
+loginBtn.addEventListener("click", async () => {
+  // limpio mensajes viejos
+  errorBox.textContent = "";
+  errorBox.classList.add("hidden");
 
-// 4) A partir de los inputs ingresados en el formulario, se deberan realizar las siguientes validaciones:
-// 1) Que el primer input sea un email válido.
-// 2) Que la contraseña tenga al menos 5 caracteres.
-// 3) Que los datos ingresados corresponden a una
-// persona que se encuentre registrada en la base de datos.
-// En caso de que alguna de las validaciones no sea exitosa,
-// se deberá mostrar un mensaje de error que diga "Alguno de los datos ingresados son incorrectos"
+  const email = emailInput.value.trim();
+  const pass = passInput.value;
 
-// 5) En caso de que los datos ingresados sean correctos, se deberá ocultar el formulario y mostrar
-// un mensaje de bienvenida al sitio.
+  // validar inputs
+  if (!esEmailValido(email) || pass.length < 5) {
+    errorBox.textContent = "Alguno de los datos ingresados son incorrectos";
+    errorBox.classList.remove("hidden");
+    return;
+  }
 
-/* 
-TIPS:
-  - Puedes averiguar acerca de la manera de validar el formato de un email utilizando Javascript, buscando
-    en internet frases como "Validar email con Javascript o similar".
+  // muestro el loader
+  loader.classList.remove("hidden");
+  loginBtn.disabled = true;
 
-  - Recuerda que puedes seleccionar y manipular los elementos del archivo index.html, usando los
-    recursos que Javascript te ofrece para ello. Además, en el archivo styles.css tiene algunas clases y 
-    estilos predefinidos para ayudarte a completar la actividad.
+  // espero 3 seg
+  await esperar(3000);
 
-  - También te dejamos algunos mensajes que te pueden ser de utilidad:
-  
-   Mensaje de error => <small>Alguno de los datos ingresados son incorrectos</small>
+  // chequeo si existe
+  const user = buscarUsuario(email, pass);
 
-   Mensaje de bienvenida => "<h1> Bienvenido al sitio 😀 </h1>";
+  if (!user) {
+    errorBox.textContent = "Alguno de los datos ingresados son incorrectos";
+    errorBox.classList.remove("hidden");
+    loader.classList.add("hidden");
+    loginBtn.disabled = false;
+    return;
+  }
 
-   ¡Manos a la obra!
- */
+  // si entra, saco el form y muestro bienvenida
+  main.innerHTML = `<h1>Bienvenido al sitio 😀</h1><p>Hola ${user.name}</p>`;
+});
